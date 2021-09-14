@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from 'react';
+import { useState, useReducer, useEffect, useRef, useCallback } from 'react';
 import { apiGet } from './config';
 
 // all hooks are function regardless they are normal or custom hooks
@@ -48,11 +48,12 @@ export function useLastQuery(key = 'lastQuery') {
         return persisted ? JSON.parse(persisted) : '';
     });
 
-    const setPersistedInput = newState => {
+    // key will not change so its new copy will not be created
+    const setPersistedInput = useCallback(newState => {
         setInput(newState);
         sessionStorage.setItem(key, JSON.stringify(newState));
 
-    };
+    }, [key]);
 
     return [input, setPersistedInput];
 }
@@ -96,3 +97,35 @@ export function useShow(showId) {
 }
 
 // useEffect 2nd argument is array where key will not change(it is for removing warning)
+
+// Hook
+export function useWhyDidYouUpdate(name, props) {
+    // Get a mutable ref object where we can store props ...
+    // ... for comparison next time this hook runs.
+    const previousProps = useRef();
+    useEffect(() => {
+      if (previousProps.current) {
+        // Get all keys from previous and current props
+        const allKeys = Object.keys({ ...previousProps.current, ...props });
+        // Use this object to keep track of changed props
+        const changesObj = {};
+        // Iterate through keys
+        allKeys.forEach((key) => {
+          // If previous is different from current
+          if (previousProps.current[key] !== props[key]) {
+            // Add to changesObj
+            changesObj[key] = {
+              from: previousProps.current[key],
+              to: props[key],
+            };
+          }
+        });
+        // If changesObj not empty then output to console
+        if (Object.keys(changesObj).length) {
+          console.log("[why-did-you-update]", name, changesObj);
+        }
+      }
+      // Finally update previousProps with current props for next hook call
+      previousProps.current = props;
+    });
+  }
