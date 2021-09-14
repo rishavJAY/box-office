@@ -1,10 +1,11 @@
 import styled from 'styled-components';
+import FadeIn from 'react-fade-in/lib/FadeIn';
 
 //  To create a new component simply create a new variable
 // wrapper around div, and it will have flex markup
-export const FlexGrid = styled.div`
+export const FlexGrid = styled(FadeIn)`
     display: flex;
-    justify-content: center;
+    justify-content: center; 
     flex-wrap: wrap;
 
 `
